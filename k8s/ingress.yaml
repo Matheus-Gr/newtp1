@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: chat-ingress
+  namespace: chat-namespace
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: 'chat-ingress-ip'
+spec:
+  defaultBackend:
+    service:
+      name: front-service
+      port:
+        number: 80
+  rules:
+    - http:
+        paths:
+          - path: /send
+            pathType: Prefix
+            backend:
+              service:
+                name: back-service
+                port:
+                  number: 5000
+          - path: /ws/
+            pathType: Prefix
+            backend:
+              service:
+                name: back-service
+                port:
+                  number: 5000
