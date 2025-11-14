@@ -25,7 +25,7 @@ metadata:
   name: back-service
   namespace: chat-namespace
   annotations:
-    cloud.google.com/backend-config: '{"default": "chat-backend-config"}
+    cloud.google.com/backend-config: '{"default": "chat-backend-config"}'
 spec:
   selector:
     app: back
