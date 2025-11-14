@@ -1,0 +1,12 @@
+.create-room-form {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.username-field {
+  height: 30px;
+  padding: 5px 10px;
+  border-radius: 10px;
+  border: none;
+}

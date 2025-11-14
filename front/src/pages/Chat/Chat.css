@@ -1,0 +1,78 @@
+#root {
+  display: flex;
+  width: 100vw;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  gap: 20px;
+}
+
+h3 {
+  margin: 0;
+}
+.select-chat-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 600px;
+  padding: 10px 0;
+  gap: 5px;
+  border-bottom: 2px solid #333;
+}
+
+.options {
+  display: flex;
+  gap: 10px;
+}
+
+.option {
+  display: flex;
+}
+
+.option input[type='checkbox'] {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #555;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.option input[type='checkbox']:hover {
+  background: #55555550;
+  border-color: #555;
+}
+
+.option input[type='checkbox']:checked {
+  background: #f6fe00;
+  border-color: #f6fe00;
+}
+
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  width: 600px;
+}
+
+.chat-history {
+  width: 600px;
+  height: 320px;
+  background-color: #333;
+}
+
+textarea {
+  resize: none;
+  height: 130px;
+  background-color: #292929;
+  border: none;
+  transition: 0.3s;
+}
+
+textarea:hover,
+:focus {
+  background-color: #303030;
+}
