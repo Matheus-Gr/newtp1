@@ -10,8 +10,12 @@ function Chat() {
 
   useEffect(() => {
     if (selectedChats.length === 0) return;
+
+    const host = window.location.host;
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+
     const sockets = selectedChats.map((chat) => {
-      const ws = new WebSocket(`ws://localhost:30500/ws/${chat}`);
+      const ws = new WebSocket(`${wsProtocol}//${host}/ws/${chat}`);
       ws.onopen = () => console.log(`Conectado a ${chat}`);
       ws.onmessage = (event) => setMessages((prev) => [...prev, event.data]);
       ws.onerror = (e) => console.error('Erro WS:', e);
@@ -26,7 +30,7 @@ function Chat() {
   const sendMessage = async () => {
     if (selectedChats.length === 0 || !input) return;
     for (const chat of selectedChats) {
-      await fetch(`http://localhost:30500/send`, {
+      await fetch(`/send`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ chat, message: input }),
