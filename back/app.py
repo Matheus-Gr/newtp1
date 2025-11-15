@@ -18,9 +18,13 @@ def home():
 def send():
     data = request.json
     chat = data.get("chat")
+    user = data.get("user")
+
     message = data.get("message")
     if not chat or not message:
         return 'Dados inválidos', 400
+
+    message = f"{user}: {message}"
     r.publish(chat, message)
     return "Mensagem enviada", 200
 
@@ -33,7 +37,7 @@ def ws_chat(ws, chat):
 
     for msg in pubsub.listen():
         if msg["type"] == "message":
-            ws.send(f"({msg['channel']}): {msg['data']}")
+            ws.send(f"({msg['channel']}) {msg['data']}")
 
 
 if __name__ == '__main__':

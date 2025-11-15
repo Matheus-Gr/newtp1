@@ -1,12 +1,18 @@
 import { useEffect, useState } from 'react';
 import './Chat.css';
-import { useParams } from 'react-router';
+import { useParams, useSearchParams } from 'react-router';
 
 function Chat() {
   const [selectedChats, setSelectedChats] = useState<string[]>([]);
   const [messages, setMessages] = useState<string[]>([]);
   const [input, setInput] = useState('');
   const room_id = useParams().room_id;
+  const [searchParams] = useSearchParams();
+  const user = searchParams.get('user');
+
+  console.log('Peste da desgraça');
+  console.log('room id:' + room_id);
+  console.log('user:' + user);
 
   useEffect(() => {
     if (selectedChats.length === 0) return;
@@ -22,18 +28,17 @@ function Chat() {
       return ws;
     });
 
-    console.log('room id:' + room_id);
-
     return () => sockets.forEach((ws) => ws.close());
   }, [selectedChats]);
 
   const sendMessage = async () => {
     if (selectedChats.length === 0 || !input) return;
+
     for (const chat of selectedChats) {
       await fetch(`/send`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat, message: input }),
+        body: JSON.stringify({ chat, message: input, user }),
       });
     }
     setInput('');
@@ -55,7 +60,7 @@ function Chat() {
   return (
     <>
       <div className="select-chat-container">
-        <h3>Selecione os Chats</h3>
+        <h3>Usuário: {user}</h3>
         <div className="options">
           {['Geral'].map((chat) => (
             <div className="option" key={chat}>

@@ -1,12 +1,22 @@
 import { useState } from 'react';
 import './Home.css';
+import { useNavigate } from 'react-router';
+import { customAlphabet } from 'nanoid';
+
+const generateId = customAlphabet(
+  'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
+  5
+);
 
 function Home() {
   const [username, setUsername] = useState('');
+  const navigate = useNavigate();
+  const room_id = generateId();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Nome:', username);
+    navigate(`/play/${room_id}?user=${username}`);
   };
 
   return (
