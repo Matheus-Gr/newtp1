@@ -4,10 +4,9 @@ import { useParams } from 'react-router';
 
 function Game() {
   const [marker, setMarker] = useState<string>('❌');
-
   const [cells, setCells] = useState<string[]>(Array(9).fill(''));
-
   const room_id = useParams().room_id;
+  const [waiting, setWaiting] = useState<boolean>(true);
 
   useEffect(() => {
     const host = window.location.host;
@@ -19,52 +18,44 @@ function Game() {
     ws.onerror = (e) => console.error('Erro WS:', e);
   }, []);
 
+  const handleClick = (index: number) => {
+    const newCells = [...cells];
+    newCells[index] = marker;
+    setCells(newCells);
+  };
+
   return (
     <>
       <div className="tic-tac-toe">
         <div className="column 1">
-          <h3>Seu marcador: {marker}</h3>
+          {waiting ? (
+            <p>Esperando conexão do player 2...</p>
+          ) : (
+            <h3>Seu marcador: {marker}</h3>
+          )}
         </div>
 
         <div className="column 2">
           <h1 className="title">Jogo da Velha</h1>
 
           <div className="board">
-            <div className="row">
-              <button className="cell" data-pos="0">
-                {cells[0]}
-              </button>
-              <button className="cell" data-pos="1">
-                {cells[1]}
-              </button>
-              <button className="cell" data-pos="2">
-                {cells[2]}
-              </button>
-            </div>
-
-            <div className="row">
-              <button className="cell" data-pos="3">
-                {cells[3]}
-              </button>
-              <button className="cell" data-pos="4">
-                {cells[4]}
-              </button>
-              <button className="cell" data-pos="5">
-                {cells[5]}
-              </button>
-            </div>
-
-            <div className="row">
-              <button className="cell" data-pos="6">
-                {cells[6]}
-              </button>
-              <button className="cell" data-pos="7">
-                {cells[7]}
-              </button>
-              <button className="cell" data-pos="8">
-                {cells[8]}
-              </button>
-            </div>
+            {[0, 1, 2].map((row) => (
+              <div className="row" key={row}>
+                {cells.slice(row * 3, row * 3 + 3).map((cell, col) => {
+                  const index = row * 3 + col;
+                  return (
+                    <button
+                      key={index}
+                      className="cell"
+                      data-pos={index}
+                      onClick={() => handleClick(index)}
+                    >
+                      {cell}
+                    </button>
+                  );
+                })}
+              </div>
+            ))}
           </div>
 
           <div className="info">
