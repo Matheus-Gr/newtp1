@@ -11,6 +11,8 @@ function Game() {
   const user = searchParams.get('user');
   const [lastPlayer, setLastPlayer] = useState<string>('');
   const [currentPlayer, setCurrentPlayer] = useState<string>('Qualquer');
+  const [gameEnded, setGameEnded] = useState<boolean>(false);
+  const [winnerText, setWinnerText] = useState<string>('');
 
   useEffect(() => {
     let ws: WebSocket | null = null;
@@ -50,16 +52,26 @@ function Game() {
           setWaiting(false);
         }
         if (dataType === 'action') {
+          console.log('Ação recebida: ', data);
+
           setCells(data.cells);
 
           const lastP = data.user;
+          const lastPMarker = data.marker;
+
           setLastPlayer(lastP);
-          setCurrentPlayer(lastP === 'x' ? '⭕' : '❌');
+          setCurrentPlayer(lastPMarker);
 
           const winner = checkWinner(data.cells);
           if (winner) {
             console.log('Vencedor:', lastP);
+            setGameEnded(true);
+            setWinnerText(winner);
           }
+        }
+
+        if (dataType === 'reset') {
+          window.location.reload();
         }
       };
 
@@ -97,13 +109,13 @@ function Game() {
     for (const [a, b, c] of lines) {
       if (cells[a] && cells[a] === cells[b] && cells[a] === cells[c]) {
         console.log('Winner found at cells:', a, b, c);
-        return cells[a]; // "x" ou "o"
+        return cells[a];
       }
     }
 
-    if (cells.every((c) => c !== '')) return 'draw';
+    if (cells.every((c) => c !== '')) return 'Velha';
 
-    return null; // nenhum vencedor ainda
+    return null;
   };
 
   const sendEnterSignal = async () => {
@@ -159,6 +171,20 @@ function Game() {
     });
   };
 
+  const handleReset = async () => {
+    const body = {
+      type: 'reset',
+      channel: room_id,
+      user: user,
+    };
+
+    await fetch(`/send`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+  };
+
   return (
     <>
       <div className="tic-tac-toe">
@@ -168,10 +194,19 @@ function Game() {
           ) : (
             <h3>Seu marcador: {yourMarker}</h3>
           )}
+          <div className="info">
+            {gameEnded ? (
+              <button className="reset" onClick={handleReset}>
+                Reiniciar
+              </button>
+            ) : (
+              <p className="status">Vez do jogador {currentPlayer}</p>
+            )}
+          </div>
         </div>
 
         <div className="column 2">
-          <h1 className="title">Jogo da Velha 13</h1>
+          <h1 className="title">Jogo da Velha</h1>
 
           <div className="board">
             {[0, 1, 2].map((row) => (
@@ -181,7 +216,10 @@ function Game() {
                   return (
                     <button
                       key={index}
-                      className="cell"
+                      className={`cell 
+                        ${cell !== '' ? 'occupied' : ''} 
+                        ${cell === '❌' ? 'x-cell' : ''} 
+                        ${cell === '⭕' ? 'o-cell' : ''}`}
                       data-pos={index}
                       onClick={() => handleClick(index)}
                     >
@@ -192,13 +230,18 @@ function Game() {
               </div>
             ))}
           </div>
-
-          <div className="info">
-            <p className="status">Vez do jogador {currentPlayer}</p>
-            <button className="reset">Reiniciar</button>
-          </div>
         </div>
-        <div className="column 3"></div>
+        <div className="column 3">
+          {gameEnded && (
+            <div className="game-over">
+              {winnerText === 'Velha' ? (
+                <h2>Empate! Jogo terminou em Velha.</h2>
+              ) : (
+                <h2>Jogador {winnerText} venceu!</h2>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </>
   );

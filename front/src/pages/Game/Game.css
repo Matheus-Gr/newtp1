@@ -42,3 +42,15 @@
   height: 80px;
   width: 80px;
 }
+
+.cell.occupied {
+  cursor: not-allowed;
+}
+
+.cell.x-cell {
+  background-color: #adfd67;
+}
+
+.cell.o-cell {
+  background-color: #70d4f3;
+}

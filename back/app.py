@@ -37,7 +37,7 @@ def send():
         elif dtype == "action":
             marker = data.get("marker")
 
-            marker = "o" if marker == "x" else "x"
+            marker = "⭕" if marker == "❌" else "❌"
 
             payload = json.dumps({
                 "type": "action",
@@ -55,6 +55,12 @@ def send():
         elif dtype == "start":
             payload = json.dumps({
                 "type": "start",
+                "channel": channel,
+                "user": user
+            })
+        elif dtype == "reset":
+            payload = json.dumps({
+                "type": "reset",
                 "channel": channel,
                 "user": user
             })

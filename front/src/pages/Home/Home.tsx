@@ -11,19 +11,22 @@ const generateId = customAlphabet(
 function Home() {
   const [username, setUsername] = useState('');
   const navigate = useNavigate();
-  const room_id = generateId();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Nome:', username);
+  const handleChat = () => {
+    const room_id = generateId();
     navigate(`/chat/${room_id}?user=${username}`);
+  };
+
+  const handleGame = () => {
+    const room_id = generateId();
+    navigate(`/game/${room_id}?user=${username}`);
   };
 
   return (
     <div className="create-room-field">
       <h3>Criar Sala</h3>
 
-      <form className="create-room-form" onSubmit={handleSubmit}>
+      <div className="create-room-form">
         <input
           className="username-field"
           type="text"
@@ -31,8 +34,15 @@ function Home() {
           onChange={(e) => setUsername(e.target.value)}
           placeholder="Username"
         />
-        <button type="submit">Enviar</button>
-      </form>
+
+        <button onClick={handleChat} disabled={!username}>
+          Chat
+        </button>
+
+        <button onClick={handleGame} disabled={!username}>
+          Jogo da Velha
+        </button>
+      </div>
     </div>
   );
 }

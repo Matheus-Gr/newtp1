@@ -3,18 +3,18 @@
 @REM docker push matheusgon/chat-back:latest
 @REM docker build -t matheusgon/chat-front:latest ./front
 @REM docker push matheusgon/chat-front:latest
-@REM docker build -t matheusgon/chat-jaiminho:latest ./jaiminho
-@REM docker push matheusgon/chat-jaiminho:latest
 
+@REM docker build -t matheusgon/chat-back:v22 ./back
+@REM docker push matheusgon/chat-back:v22
+@REM kubectl set image deployment/back back=matheusgon/chat-back:v22 -n chat-namespace
 
-@REM docker build -t matheusgon/chat-back:v12 ./back
-@REM docker push matheusgon/chat-back:v12
-@REM kubectl set image deployment/back back=matheusgon/chat-back:v12 -n chat-namespace
+docker build -t matheusgon/chat-front:v28 ./front
+docker push matheusgon/chat-front:v28
+kubectl set image deployment/front front=matheusgon/chat-front:v28 -n chat-namespace
 
-docker build -t matheusgon/chat-front:v13 ./front
-docker push matheusgon/chat-front:v13
-kubectl set image deployment/front front=matheusgon/chat-front:v13 -n chat-namespace
-
+@REM docker build -t matheusgon/chat-jaiminho:v20 ./jaiminho
+@REM docker push matheusgon/chat-jaiminho:v20
+@REM kubectl set image deployment/jaiminho jaiminho=matheusgon/chat-jaiminho:v20 -n chat-namespace
 
 @REM kubectl rollout restart deployment back -n chat-namespace    
 @REM kubectl rollout restart deployment front -n chat-namespace  

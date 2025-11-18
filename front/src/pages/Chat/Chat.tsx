@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import './Chat.css';
 import { useParams, useSearchParams } from 'react-router';
 
@@ -9,35 +9,69 @@ function Chat() {
   const room_id = useParams().room_id;
   const [searchParams] = useSearchParams();
   const user = searchParams.get('user');
+  const [reconnectText, setReconnectText] = useState<string>('');
+  // const sockets = new Map<string, WebSocket>();
+  const socketsRef = useRef<Map<string, WebSocket>>(new Map());
 
-  useEffect(() => {
-    if (selectedChats.length === 0) return;
-
+  const connect = (chat: string) => {
     const host = window.location.host;
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
 
-    const sockets = selectedChats.map((chat) => {
-      const ws = new WebSocket(`${wsProtocol}//${host}/ws/${chat}`);
-      ws.onopen = () => console.log(`Conectado a ${chat}`);
-      ws.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
+    console.log(`Conectando ao canal ${chat}...`);
 
-          if (data.type === 'message') {
-            setMessages((prev) => [
-              ...prev,
-              `(${data.channel}) ${data.user}: ${data.msg}`,
-            ]);
-          }
-        } catch (e) {
-          console.error('Erro ao decodificar JSON:', e, event.data);
+    const ws = new WebSocket(`${wsProtocol}//${host}/ws/${chat}`);
+
+    socketsRef.current.set(chat, ws);
+
+    ws.onopen = () => {
+      console.log(`Conectado ao canal ${chat}`);
+      setReconnectText('');
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === 'message') {
+          setMessages((prev) => [
+            ...prev,
+            `(${data.channel}) ${data.user}: ${data.msg}`,
+          ]);
         }
-      };
-      ws.onerror = (e) => console.error('Erro WS:', e);
-      return ws;
+      } catch {}
+    };
+
+    ws.onerror = () => {
+      console.warn(`Erro no canal ${chat}`);
+    };
+
+    ws.onclose = () => {
+      console.warn(`Conexão perdida em ${chat}, tentando reconectar...`);
+      socketsRef.current.delete(chat);
+      setReconnectText(`Reconectando ao canal ${chat}...`);
+
+      setTimeout(() => {
+        if (selectedChats.includes(chat) && !socketsRef.current.has(chat)) {
+          connect(chat);
+        }
+      }, 1000);
+    };
+  };
+
+  useEffect(() => {
+    selectedChats.forEach((chat) => {
+      if (!socketsRef.current.has(chat)) {
+        connect(chat);
+      }
     });
 
-    return () => sockets.forEach((ws) => ws.close());
+    socketsRef.current.forEach((ws, chat) => {
+      if (!selectedChats.includes(chat)) {
+        ws.close();
+        socketsRef.current.delete(chat);
+      }
+    });
+
+    return () => {};
   }, [selectedChats]);
 
   const sendMessage = async () => {
@@ -74,6 +108,7 @@ function Chat() {
   return (
     <>
       <div className="select-chat-container">
+        <span>{reconnectText}</span>
         <h3>Usuário: {user}</h3>
         <div className="options">
           {['Email', 'Geral'].map((chat) => (

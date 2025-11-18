@@ -62,6 +62,7 @@ h3 {
   width: 600px;
   height: 320px;
   background-color: #333;
+  overflow: auto;
 }
 
 textarea {
