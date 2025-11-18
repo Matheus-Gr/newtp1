@@ -12,23 +12,43 @@ function Game() {
   const [lastPlayer, setLastPlayer] = useState<string>('Qualquer');
 
   useEffect(() => {
-    const host = window.location.host;
-    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    let ws: WebSocket | null = null;
+    let reconnectTimeout: number;
 
-    const ws = new WebSocket(`${wsProtocol}//${host}/ws/${room_id}`);
+    const connect = () => {
+      const host = window.location.host;
+      const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
 
-    ws.onopen = () => console.log(`Conectado a ${room_id}`);
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      setCells(data.cells);
-      setLastPlayer(data.lastPlayer);
-      if (data.marker == '❌') {
-        setMarker('⭕');
-      } else {
-        setMarker('❌');
-      }
+      ws = new WebSocket(`${wsProtocol}//${host}/ws/${room_id}`);
+
+      ws.onopen = () => {
+        console.log(`Conectado a ${room_id}`);
+      };
+
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        setCells(data.cells);
+        setLastPlayer(data.lastPlayer);
+        setMarker(data.marker === '❌' ? '⭕' : '❌');
+      };
+
+      ws.onerror = () => {
+        console.log('Erro WS, fechando conexão...');
+        ws?.close();
+      };
+
+      ws.onclose = () => {
+        console.log('WS fechado, tentando reconectar...');
+        reconnectTimeout = window.setTimeout(connect, 1000);
+      };
     };
-    ws.onerror = (e) => console.error('Erro WS:', e);
+
+    connect();
+
+    return () => {
+      ws?.close();
+      clearTimeout(reconnectTimeout);
+    };
   }, []);
 
   const handleClick = async (index: number) => {
@@ -43,10 +63,10 @@ function Game() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        room_id,
+        type: 'action',
         cells: newCells,
-        user,
-        marker: marker,
+        channel: room_id,
+        user: user,
       }),
     });
 

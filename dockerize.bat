@@ -3,9 +3,12 @@ docker build -t matheusgon/chat-back:latest ./back
 docker push matheusgon/chat-back:latest
 docker build -t matheusgon/chat-front:latest ./front
 docker push matheusgon/chat-front:latest
-docker build -t matheusgon/chat-jaiminho:latest ./jaiminho
-docker push matheusgon/chat-jaiminho:latest
+@REM docker build -t matheusgon/chat-jaiminho:latest ./jaiminho
+@REM docker push matheusgon/chat-jaiminho:latest
 
+
+@REM kubectl rollout restart deployment back -n chat-namespace    
+@REM kubectl rollout restart deployment front -n chat-namespace  
 
 @REM echo [2/5] Reservando o IP Estatico Global 'chat-ingress-ip'...
 @REM gcloud compute addresses create chat-ingress-ip --global

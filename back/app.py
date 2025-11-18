@@ -17,24 +17,33 @@ def home():
 
 @app.post("/send")
 def send():
-    data = request.json
-    chat = data.get("channel")
-    user = data.get("user")
-    msg = data.get("msg")
+    try:
+        data = request.json
+        print(data)
+        channel = data.get("channel")
+        user = data.get("user")
+        dtype = data.get("type")
 
-    print(data)
-    if not chat or not msg:
-        return "faltando dados", 400
+        if dtype == "message":
+            payload = json.dumps({
+                "type": "message",
+                "msg": data.get("msg"),
+                "channel": channel,
+                "user": user
+            })
+        else:
+            payload = json.dumps({
+                "type": "action",
+                "cells": data.get("cells"),
+                "channel": channel,
+                "user": user
+            })
 
-    payload = json.dumps({
-        "type": "message",
-        "msg": msg,
-        "channel": chat,
-        "user": user
-    })
+        r.publish(channel, payload)
+        return {"status": "ok"}, 200
 
-    r.publish(chat, payload)
-    return {"status": "ok"}, 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 505
 
 
 @sock.route("/ws/<chat>")
