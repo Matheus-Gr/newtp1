@@ -1,7 +1,8 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_sock import Sock
 import redis
+import json
 
 app = Flask(__name__)
 CORS(app)
@@ -17,27 +18,34 @@ def home():
 @app.post("/send")
 def send():
     data = request.json
-    chat = data.get("chat")
+    chat = data.get("channel")
     user = data.get("user")
+    msg = data.get("msg")
 
-    message = data.get("message")
-    if not chat or not message:
-        return 'Dados inválidos', 400
+    print(data)
+    if not chat or not msg:
+        return "faltando dados", 400
 
-    message = f"{user}: {message}"
-    r.publish(chat, message)
-    return "Mensagem enviada", 200
+    payload = json.dumps({
+        "type": "message",
+        "msg": msg,
+        "channel": chat,
+        "user": user
+    })
+
+    r.publish(chat, payload)
+    return {"status": "ok"}, 200
 
 
 @sock.route("/ws/<chat>")
 def ws_chat(ws, chat):
     pubsub = r.pubsub()
     pubsub.subscribe(chat)
-    # ws.send(f"Conectado ao canal: {chat}")
 
     for msg in pubsub.listen():
         if msg["type"] == "message":
-            ws.send(f"({msg['channel']}) {msg['data']}")
+            payload = msg["data"]
+            ws.send(payload)
 
 
 if __name__ == '__main__':

@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jaiminho
+  namespace: chat-namespace
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jaiminho
+  template:
+    metadata:
+      labels:
+        app: jaiminho
+    spec:
+      containers:
+        - name: jaiminho
+          image: matheusgon/chat-jaiminho:latest

@@ -16,7 +16,7 @@ function Home() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Nome:', username);
-    navigate(`/play/${room_id}?user=${username}`);
+    navigate(`/chat/${room_id}?user=${username}`);
   };
 
   return (
