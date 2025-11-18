@@ -1,10 +1,19 @@
 @REM echo [1/5] Buildando iamgens Docker...
-docker build -t matheusgon/chat-back:latest ./back
-docker push matheusgon/chat-back:latest
-docker build -t matheusgon/chat-front:latest ./front
-docker push matheusgon/chat-front:latest
+@REM docker build -t matheusgon/chat-back:latest ./back
+@REM docker push matheusgon/chat-back:latest
+@REM docker build -t matheusgon/chat-front:latest ./front
+@REM docker push matheusgon/chat-front:latest
 @REM docker build -t matheusgon/chat-jaiminho:latest ./jaiminho
 @REM docker push matheusgon/chat-jaiminho:latest
+
+
+@REM docker build -t matheusgon/chat-back:v12 ./back
+@REM docker push matheusgon/chat-back:v12
+@REM kubectl set image deployment/back back=matheusgon/chat-back:v12 -n chat-namespace
+
+docker build -t matheusgon/chat-front:v13 ./front
+docker push matheusgon/chat-front:v13
+kubectl set image deployment/front front=matheusgon/chat-front:v13 -n chat-namespace
 
 
 @REM kubectl rollout restart deployment back -n chat-namespace    

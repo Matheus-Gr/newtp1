@@ -24,6 +24,9 @@ def send():
         user = data.get("user")
         dtype = data.get("type")
 
+        if not channel:
+            return jsonify({"error": "Missing 'channel' in request body"}), 400
+
         if dtype == "message":
             payload = json.dumps({
                 "type": "message",
@@ -31,10 +34,27 @@ def send():
                 "channel": channel,
                 "user": user
             })
-        else:
+        elif dtype == "action":
+            marker = data.get("marker")
+
+            marker = "o" if marker == "x" else "x"
+
             payload = json.dumps({
                 "type": "action",
                 "cells": data.get("cells"),
+                "channel": channel,
+                "user": user,
+                "marker": marker
+            })
+        elif dtype == "enter":
+            payload = json.dumps({
+                "type": "enter",
+                "channel": channel,
+                "user": user
+            })
+        elif dtype == "start":
+            payload = json.dumps({
+                "type": "start",
                 "channel": channel,
                 "user": user
             })
@@ -43,7 +63,7 @@ def send():
         return {"status": "ok"}, 200
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 505
+        return jsonify({"error": str(e)}), 500
 
 
 @sock.route("/ws/<chat>")
